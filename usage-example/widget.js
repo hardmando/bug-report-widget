@@ -22,7 +22,7 @@
           }
           #widget-btn:hover { background: #e55353; }
         </style>
-        <button id="widget-btn">🐛 Report Bug</button>
+        <button id="widget-btn">Report Bug</button>
       `;
 
             // Button click → open modal

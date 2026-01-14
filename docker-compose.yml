@@ -1,6 +1,8 @@
 services:
   postgres:
     image: postgres:16-alpine
+    env_file:
+      - .env.local
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -9,6 +11,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:7-alpine
@@ -16,6 +23,11 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
@@ -55,6 +67,11 @@ services:
       - ./cmd/auth-service:/app/cmd/auth-service
       - ./internal/auth:/app/internal/auth
       # - /app/pkg:/app/pkg
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   ingestion-service:
     build:
