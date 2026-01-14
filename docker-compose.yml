@@ -1,0 +1,96 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: bugdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: devpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.go
+      target: dev
+      args:
+        SERVICE_NAME: auth-service
+    command: [ "go", "run", "./cmd/auth-service" ]
+    ports:
+      - "8081:8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: bugdb
+      DB_USER: postgres
+      DB_PASS: devpass
+      REDIS_ADDR: redis:6379
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./cmd/auth-service:/app/cmd/auth-service
+      - ./internal/auth:/app/internal/auth
+      # - /app/pkg:/app/pkg # Add if you create shared pkg later
+
+  ingestion-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.go
+      target: dev
+      args:
+        SERVICE_NAME: ingestion-service
+    command: [ "go", "run", "./cmd/ingestion-service" ]
+    ports:
+      - "8082:8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: bugdb
+      DB_USER: postgres
+      DB_PASS: devpass
+      REDIS_ADDR: redis:6379
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./cmd/ingestion-service:/app/cmd/ingestion-service
+      - ./internal/ingestion:/app/internal/ingestion
+
+  bug-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.go
+      target: dev
+      args:
+        SERVICE_NAME: bug-service
+    command: [ "go", "run", "./cmd/bug-service" ]
+    ports:
+      - "8083:8080"
+    environment:
+      # ← THIS WAS MISSING
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: bugdb
+      DB_USER: postgres
+      DB_PASS: devpass
+      REDIS_ADDR: redis:6379
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./cmd/bug-service:/app/cmd/bug-service
+      - ./internal/bug:/app/internal/bug
+
+volumes:
+  postgres_data:
+  redis_data:

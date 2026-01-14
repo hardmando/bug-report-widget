@@ -1,0 +1,37 @@
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+go.work
+go.sum  # Optional: commit later for reproducible builds
+
+# Dependencies
+**/node_modules/
+**/vendor/
+
+# Docker
+.dockerignore
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Postgres
+pgdata/
