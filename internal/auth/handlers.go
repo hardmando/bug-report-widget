@@ -1,4 +1,6 @@
 package auth
+import "bug-widget-saas/internal/middleware"
+
 
 import (
     "crypto/rand"
@@ -19,7 +21,8 @@ func generateSecureKey() (string, error) {
 }
 
 func CreateTenant(db *sql.DB) http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
+	
+    return middleware.CORS(func(w http.ResponseWriter, r *http.Request) {
         if r.Method != http.MethodPost {
             http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
             return
@@ -54,11 +57,11 @@ func CreateTenant(db *sql.DB) http.HandlerFunc {
 
         w.Header().Set("Content-Type", "application/json")
         json.NewEncoder(w).Encode(Tenant{Name: req.Name, APIKey: apiKey})
-    }
+    })
 }
 
 func GetTenantByAPIKey(db *sql.DB) http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
+    return middleware.CORS(func(w http.ResponseWriter, r *http.Request) {
         apiKey := r.Header.Get("X-API-Key")
         if apiKey == "" {
             http.Error(w, "Missing X-API-Key", http.StatusUnauthorized)
@@ -80,5 +83,5 @@ func GetTenantByAPIKey(db *sql.DB) http.HandlerFunc {
 
         w.Header().Set("Content-Type", "application/json")
         json.NewEncoder(w).Encode(tenant)
-    }
+    })
 }

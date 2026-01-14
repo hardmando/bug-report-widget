@@ -1,32 +1,22 @@
-package auth
+package main
 
 import (
     "database/sql"
-    "fmt"
-    _ "github.com/lib/pq"
     "log"
-	"os"
+    "net/http"
+
+    "bug-widget-saas/internal/ingestion"
 )
 
-type Tenant struct {
-    ID     string `json:"id"`
-    Name   string `json:"name"`
-    APIKey string `json:"api_key,omitempty"`
-}
+func main() {
+    db, _ := sql.Open("postgres", "postgres://postgres:devpass@postgres:5432/bugdb?sslmode=disable")
+    defer db.Close()
 
-func ConnectDB() *sql.DB {
-    host := os.Getenv("DB_HOST")
-    port := os.Getenv("DB_PORT")
-    user := os.Getenv("DB_USER")
-    password := os.Getenv("DB_PASS")
-    dbname := os.Getenv("DB_NAME")
+    http.HandleFunc("/ingest/bugs", ingestion.IngestBug(db))
+    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+        w.Write([]byte("Ingestion service running"))
+    })
 
-    connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-        host, port, user, password, dbname)
-    
-    db, err := sql.Open("postgres", connStr)
-    if err != nil {
-        log.Fatal(err)
-    }
-    return db
+    log.Println("Ingestion service starting on :8080")
+    log.Fatal(http.ListenAndServe(":8080", nil))
 }

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Bug Widget Demo</title>
+    <style>
+        body {
+            font-family: system-ui;
+            padding: 2rem;
+        }
+
+        #bug-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #ff5e5e;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        #bug-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+        }
+
+        #bug-form {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Bug Widget SaaS Demo</h1>
+    <p>This is a demo page. Click the red button to report a bug!</p>
+
+    <!-- Your widget container -->
+    <div id="bug-widget-container"></div>
+
+    <!-- Widget modal (injected by JS) -->
+    <div id="bug-modal">
+        <div id="bug-form">
+            <h2>🐛 Report a bug</h2>
+            <textarea id="bug-desc" placeholder="Describe the issue..." rows="4"
+                style="width:100%; margin-bottom:1rem;"></textarea>
+            <button onclick="BugWidget.submitBug()">Submit Bug</button>
+            <button onclick="BugWidget.closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script src="widget.js"></script>
+    <script>
+        // Initialize your widget (SaaS embed pattern)
+        window.BugWidget.init({
+            apiKey: 'dev_api_key_123',  // From your dev tenant
+            endpoint: 'http://localhost:8082'
+        });
+    </script>
+</body>
+
+</html>
