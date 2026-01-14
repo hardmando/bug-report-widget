@@ -17,6 +17,20 @@ services:
     volumes:
       - redis_data:/data
 
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+
   auth-service:
     build:
       context: .
@@ -60,6 +74,7 @@ services:
       DB_PASS: ${POSTGRES_PASSWORD}
       REDIS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
     depends_on:
+      - rabbitmq
       - postgres
       - redis
     volumes:
@@ -84,6 +99,7 @@ services:
       DB_PASS: ${POSTGRES_PASSWORD}
       REDIS_ADDR: ${REDIS_HOST}:${REDIS_PORT}
     depends_on:
+      - rabbitmq
       - postgres
       - redis
     volumes:
