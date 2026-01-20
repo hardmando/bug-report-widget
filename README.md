@@ -28,7 +28,7 @@ The system is composed of several microservices orchestrated via Docker Compose:
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone [https://github.com/hardmando/bu](https://github.com/hardmando/bug-report-widget)
    cd bug-report-widget
    ```
 
