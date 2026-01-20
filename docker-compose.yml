@@ -46,7 +46,7 @@ services:
   auth-service:
     build:
       context: .
-      dockerfile: docker/Dockerfile.go
+      dockerfile: docker/Dockerfile
       target: dev
       args:
         SERVICE_NAME: auth-service
@@ -76,7 +76,7 @@ services:
   ingestion-service:
     build:
       context: .
-      dockerfile: docker/Dockerfile.go
+      dockerfile: docker/Dockerfile
       target: dev
       args:
         SERVICE_NAME: ingestion-service
@@ -101,7 +101,7 @@ services:
   bug-service:
     build:
       context: .
-      dockerfile: docker/Dockerfile.go
+      dockerfile: docker/Dockerfile
       target: dev
       args:
         SERVICE_NAME: bug-service
@@ -122,6 +122,22 @@ services:
     volumes:
       - ./cmd/bug-service:/app/cmd/bug-service
       - ./internal/bug:/app/internal/bug
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: ../docker/Dockerfile.dashboard
+    ports:
+      - "3001:3001"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8081 # Client-side access
+      API_URL_INTERNAL: http://auth-service:8080 # Server-side access to auth service
+    volumes:
+      - ./dashboard:/app
+      - /app/node_modules
+    depends_on:
+      - auth-service
+      - bug-service
 
 volumes:
   postgres_data:
